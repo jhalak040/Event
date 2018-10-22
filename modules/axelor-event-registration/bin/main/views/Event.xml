@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+  http://axelor.com/xml/ns/object-views/object-views_5.0.xsd">
+
+	<grid model="com.axelor.apps.event.registration.db.Event" title="Events"
+		name="event-grid">
+		<field name="reference" />
+		<field name="startDate" />
+		<field name="endDate" />
+		<field name="venu" />
+		<field name="registrationOpen" />
+		<field name="registrationClose" />
+		<field name="capacity" />
+		<field name="fees" />
+		<field name="totalEntery" />
+		<field name="amountCollected" />
+		<field name="totalDiscount" />
+		<field name="description" widget="text" />
+	</grid>
+
+	<form model="com.axelor.apps.event.registration.db.Event" title="Event"
+		name="event-form" onLoad="fill-info,action-event-group-onload">
+		<toolbar>
+			<button name="importRegistration " title="Import Registration "
+				onClick="action-event-view-import-event-popup" />
+			<button name="sendEmail" title="Send Email"
+				onClick="action-send-by-email-with-template" hideIf="eventRegistration == null" />
+			<button name="printReport" title="Print" onClick="action-event-print-report"
+				readonlyIf="eventRegistration == null" />
+			<button name="print" title="extraPrint" onClick="action-event-print-report-extra"
+				readonlyIf="eventRegistration == null" />
+		</toolbar>
+
+		<panel>
+			<field name="reference" colSpan="7" />
+			<field name="startDate"
+				onChange="action-event-validate-date,action-method-event-check-date" />
+			<field name="endDate" onChange="action-event-validate-date" />
+			<field name="venu" >
+				<editor>
+					<field name="fullName" showTitle="false" />
+				</editor>
+			</field>
+			<field name="capacity" />
+			<field name="fees" />
+		</panel>
+		<panel colSpan="12">
+			<field name="discount" canNew="true" colSpan="12" />
+		</panel>
+		<panel>
+			<field name="eventRegistration" colSpan="12"
+				showIf="registrationOpen != null " form-view="event-registration-on-event-form"
+				onChange="action-method-event-check-capacity,action-event-method-total-entery,action-method-event-amount-Collected,action-method-event-total-discount" />
+		</panel>
+		<panel>
+			<field name="description" widget="text" colSpan="10" />
+		</panel>
+		<panel sidebar="true">
+			<field name="registrationOpen"
+				onChange="action-event-validate-date,action-method-event-check-date" />
+			<field name="registrationClose"
+				onChange="action-event-validate-date,action-method-event-check-date" />
+		</panel>
+		<panel sidebar="true">
+			<field name="totalEntery" />
+			<field name="amountCollected" />
+			<field name="totalDiscount" />
+		</panel>
+	</form>
+
+	<cards name="event-cards" title="Event"
+		model="com.axelor.apps.event.registration.db.Event" orderBy="startDate">
+		<field name="reference" />
+		<field name="venu" />
+		<field name="startDate" />
+		<field name="endDate" />
+		<field name="totalEntry" />
+		<template><![CDATA[  
+				<div class="span8">
+				<strong>{{reference}} </strong>
+				</div>
+				<div>
+				<strong>{{venu}} </strong>
+				</div>
+				<div>
+				<strong>{{startDate}}  <br> {{endDate}} <br> {{totalEntry}} </strong>
+				</div>
+				]]>
+		</template>
+
+	</cards>
+
+	<calendar name="event-calender" model="com.axelor.apps.event.registration.db.Event"
+		title="Event Calender" eventStart="startDate" eventStop="endDate"
+		eventLength="1">
+		<field name="reference"></field>
+
+	</calendar>
+
+	<action-validate name="action-event-validate-date">
+		<info message=" please enter validate Event End date " if="startDate &gt; endDate " />
+		<info message=" please enter validate registration close date "
+			if="registrationOpen &gt; registrationClose" />
+	</action-validate>
+
+	<action-group name="action-event-group-onload">
+		<action name="action-method-event-check-capacity" />
+		<action name="action-method-event-total-entery" />
+		<action name="action-method-event-amount-Collected" />
+		<action name="action-method-event-total-discount" />
+	</action-group>
+
+	<action-method name="action-method-event-total-entery">
+		<call class="com.axelor.apps.event.registration.web.EventController"
+			method="totalEntery" />
+	</action-method>
+
+	<action-method name="action-method-event-capacity">
+		<call class="com.axelor.apps.event.registration.web.EventController"
+			method="capacity" />
+	</action-method>
+
+	<action-method name="action-method-event-amount-Collected">
+		<call class="com.axelor.apps.event.registration.web.EventController"
+			method="computeAmountCalculate" />
+	</action-method>
+
+	<action-method name="action-method-event-total-discount">
+		<call class="com.axelor.apps.event.registration.web.EventController"
+			method="computeTotalDiscount" />
+	</action-method>
+
+	<action-method name="action-method-event-check-capacity">
+		<call class="com.axelor.apps.event.registration.web.EventController"
+			method="checkCapacity" />
+	</action-method>
+
+	<action-method name="action-method-event-check-date">
+		<call class="com.axelor.apps.event.registration.web.EventController"
+			method="checkDate" />
+	</action-method>
+
+	<action-method name="fill-info">
+		<call class="com.axelor.apps.event.registration.web.EventController"
+			method="fillEventRegistrationInfo" />
+	</action-method>
+
+	<action-report name="action-event-print-report" design="Event_Report.rptdesign"
+		output="design-${date}${time}" format="pdf">
+		<param name="ids" expr="eval: id" />
+	</action-report>
+
+	<action-report name="action-event-print-report-extra"
+		design="new_report.rptdesign" output="design-${date}${time}" format="pdf">
+		<param name="ids" expr="eval: id" />
+	</action-report>
+
+	<action-view name="action-event-view-import-event-popup"
+		title="Event Registration" model="com.axelor.apps.event.registration.db.Event">
+		<view type="form" name="file-import-form" />
+		<view-param name="show-toolbar" value="false" />
+		<view-param name="width" value="800" />
+		<view-param name="popup" value="true" />
+		<view-param name="show-confirm" value="false" />
+		<view-param name="popup-save" value="false" />
+		<view-param name="popup" value="reload" />
+		<view-param name="forceEdit" value="true" />
+		<context name="_showRecord" expr="eval: id " />
+	</action-view>
+
+	<form model="com.axelor.apps.event.registration.db.Event" title="File"
+		name="file-import-form">
+		<panel>
+			<!-- <field name="file" title="File" type="many-to-one" widget="binary-link" 
+				target="com.axelor.meta.db.MetaFile" /> -->
+			<field name="$importFile" title="File" widget="binary-link"
+				type="many-to-one" target="com.axelor.meta.db.MetaFile" />
+			<button name="importCsv" title="Import Csv"
+				onClick="action-event-method-file-import" />
+		</panel>
+	</form>
+
+	<action-method name="action-event-method-file-import">
+		<call class="com.axelor.apps.event.registration.web.EventController"
+			method="importCsvData" />
+	</action-method>
+
+</object-views>
+		

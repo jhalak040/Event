@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+  http://axelor.com/xml/ns/object-views/object-views_5.0.xsd">
+
+	<grid model="com.axelor.apps.event.registration.db.EventRegistration"
+		title="Event Registrations" name="event-registration-grid">
+		<field name="name" />
+		<field name="email" />
+		<field name="registrationDate" />
+		<field name="amount" />
+
+	</grid>
+
+	<form model="com.axelor.apps.event.registration.db.EventRegistration"
+		title="Event Registration" name="event-registration-on-event-form"
+		onSave="action-event-method-event-capcity">
+		<panel>
+			<field name="emailSent" widget="boolean" />
+			<field name="name" colSpan="8" />
+			<field name="event" canEdit="false" colSpan="7" canView="false"
+				onChange="action-event-method-event-capcity">
+				<viewer>
+		           <![CDATA[
+		              <event>
+		              {{record.reference}}
+		              </event>
+		            ]]>
+           </viewer>
+				<editor x-show-titles="false">
+					<field name="reference" />
+				</editor>
+			</field>
+			<field name="email" colSpan="8"
+				pattern="^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@+[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$"
+				widget="Email" />
+			<field name="address" colSpan="8">
+
+				<editor x-show-titles="false">
+					<field name="fullName" />
+				</editor>
+			</field>
+			<field name="registrationDate" onChange="action-event-method-amount" />
+			<field name="amount" />
+		</panel>
+	</form>
+	<form model="com.axelor.apps.event.registration.db.EventRegistration"
+		title="Event Registration" name="event-registration-form" onSave="action-event-method-event-capcity">
+		<panel>
+			<field name="emailSent" widget="boolean" />
+			<field name="name" />
+			<field name="event" canEdit="false"
+				onChange="action-event-method-event-capcity,action-event-method-event-capcity">
+				<viewer>
+		           <![CDATA[
+		              <event>
+		              {{record.reference}}
+		              </event>
+		            ]]>
+           </viewer>
+				<editor x-show-titles="false">
+					<field name="reference" />
+				</editor>
+			</field>
+			<field name="email"
+				pattern="^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@+[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$"
+				widget="Email" />
+			<field name="address">
+				<viewer>
+		           <![CDATA[
+		              <address>
+		              {{record.fullName}}
+		              </address>
+		            ]]>
+           </viewer>
+				<editor x-show-titles="false">
+					<field name="fullName" />
+				</editor>
+			</field>
+			<field name="registrationDate"
+				onChange="action-event-method-event-capcity,action-event-method-amount" />
+			<field name="amount" />
+		</panel>
+	</form>
+
+	<!-- <action-record name="action-event-record-amount" model="com.axelor.apps.event.registration.db.EventRegistration"> 
+		<field name="amount" expr="call:com.axelor.apps.event.registration.web.EventController:computeAmount" 
+		/> </action-record> -->
+	<action-method name="action-event-method-amount">
+		<call class="com.axelor.apps.event.registration.web.EventController"
+			method="computeAmount" />
+	</action-method>
+
+	<action-method name="action-event-method-event-capcity">
+		<call class="com.axelor.apps.event.registration.web.EventController"
+			method="checkRegistrationCapacity" />
+	</action-method>
+
+
+</object-views>
+	
